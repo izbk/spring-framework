@@ -455,7 +455,7 @@ public class BeanDefinitionParserDelegate {
 		if (containingBean == null) {
 			checkNameUniqueness(beanName, aliases, ele);
 		}
-
+		//对Bean元素的详细解析
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		if (beanDefinition != null) {
 			if (!StringUtils.hasText(beanName)) {
@@ -522,7 +522,7 @@ public class BeanDefinitionParserDelegate {
 			Element ele, String beanName, BeanDefinition containingBean) {
 
 		this.parseState.push(new BeanEntry(beanName));
-
+		//这里只读取定义的<bean>中设置的class名字，然后载入到BeanDefinition中去，只是做个记录，并不涉及对象的实例化过程，对象的实例化实际上是在依赖注入时完成的
 		String className = null;
 		if (ele.hasAttribute(CLASS_ATTRIBUTE)) {
 			className = ele.getAttribute(CLASS_ATTRIBUTE).trim();
@@ -533,16 +533,18 @@ public class BeanDefinitionParserDelegate {
 			if (ele.hasAttribute(PARENT_ATTRIBUTE)) {
 				parent = ele.getAttribute(PARENT_ATTRIBUTE);
 			}
+			//这里生成需要的BeanDefinition对象，为Bean定义信息的载入做准备
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
-
+			//这里对当前的Bean元素进行属性解析，并设置description的信息
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
-
+			//从名字可以清楚地看到，这里是对各种<bean>元素的信息进行解析的地方
 			parseMetaElements(ele, bd);
 			parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
 			parseReplacedMethodSubElements(ele, bd.getMethodOverrides());
-
+			//解析<bean>的构造函数设置
 			parseConstructorArgElements(ele, bd);
+			//解析<bean>的property设置
 			parsePropertyElements(ele, bd);
 			parseQualifierElements(ele, bd);
 
@@ -551,6 +553,7 @@ public class BeanDefinitionParserDelegate {
 
 			return bd;
 		}
+		//Bean配置常见异常
 		catch (ClassNotFoundException ex) {
 			error("Bean class [" + className + "] not found", ele, ex);
 		}
@@ -886,10 +889,12 @@ public class BeanDefinitionParserDelegate {
 		}
 		this.parseState.push(new PropertyEntry(propertyName));
 		try {
+			//同一个bean中已经有同名的property存在，则不进行解析直接返回
 			if (bd.getPropertyValues().contains(propertyName)) {
 				error("Multiple 'property' definitions for property '" + propertyName + "'", ele);
 				return;
 			}
+			//解析出property的值，封装到PropertyValue中，再设置到BeanDefinitionHolder中
 			Object val = parsePropertyValue(ele, bd, propertyName);
 			PropertyValue pv = new PropertyValue(propertyName, val);
 			parseMetaElements(ele, pv);
