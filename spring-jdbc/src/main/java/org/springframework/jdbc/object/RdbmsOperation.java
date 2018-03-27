@@ -272,6 +272,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 	 * and hence cannot be configured further
 	 */
 	public void declareParameter(SqlParameter param) throws InvalidDataAccessApiUsageException {
+		//声明参数只能在编译之前，如果已完成编译则声明参数无效，抛异常
 		if (isCompiled()) {
 			throw new InvalidDataAccessApiUsageException("Cannot add parameters once the query is compiled");
 		}
@@ -323,6 +324,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 	 * been correctly initialized, for example if no DataSource has been provided
 	 */
 	public final void compile() throws InvalidDataAccessApiUsageException {
+		//判断没有编译才执行以下代码
 		if (!isCompiled()) {
 			if (getSql() == null) {
 				throw new InvalidDataAccessApiUsageException("Property 'sql' is required");
@@ -334,7 +336,7 @@ public abstract class RdbmsOperation implements InitializingBean {
 			catch (IllegalArgumentException ex) {
 				throw new InvalidDataAccessApiUsageException(ex.getMessage());
 			}
-
+			//调用compileInternal完成具体的编译，并设置编译标志
 			compileInternal();
 			this.compiled = true;
 

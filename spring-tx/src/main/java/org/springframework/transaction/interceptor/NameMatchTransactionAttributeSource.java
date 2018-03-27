@@ -105,10 +105,12 @@ public class NameMatchTransactionAttributeSource implements TransactionAttribute
 			return null;
 		}
 
+		// 判断当前目标调用的方法与配置的事物方法是否直接匹配
 		// Look for direct name match.
 		String methodName = method.getName();
 		TransactionAttribute attr = this.nameMap.get(methodName);
 
+		// 不匹配就通过调用PatternMatchUtils的simpleMatch方法来进行匹配判断
 		if (attr == null) {
 			// Look for most specific name match.
 			String bestNameMatch = null;

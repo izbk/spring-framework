@@ -1362,8 +1362,8 @@ public class JdbcTemplate extends JdbcAccessor implements JdbcOperations {
 	 */
 	protected void applyStatementSettings(Statement stmt) throws SQLException {
 		int fetchSize = getFetchSize();
+		stmt.setFetchSize(fetchSize);
 		if (fetchSize != -1) {
-			stmt.setFetchSize(fetchSize);
 		}
 		int maxRows = getMaxRows();
 		if (maxRows != -1) {

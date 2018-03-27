@@ -403,7 +403,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	@Override
 	public Object applyBeanPostProcessorsBeforeInitialization(Object existingBean, String beanName)
 			throws BeansException {
-
+		//这里是对设置好的BeanPostProcessors的postProcessBeforeInitialization回调进行依次调用的地方
 		Object result = existingBean;
 		for (BeanPostProcessor beanProcessor : getBeanPostProcessors()) {
 			result = beanProcessor.postProcessBeforeInitialization(result, beanName);
@@ -417,7 +417,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	@Override
 	public Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
 			throws BeansException {
-
+		//这里是对设置好的BeanPostProcessors的postProcessAfterInitialization回调进行依次调用的地方
 		Object result = existingBean;
 		for (BeanPostProcessor beanProcessor : getBeanPostProcessors()) {
 			result = beanProcessor.postProcessAfterInitialization(result, beanName);
@@ -1620,11 +1620,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			invokeAwareMethods(beanName, bean);
 		}
 
+		//这里是对后置处理器BeanPostProcessors的postProcessBeforeInitialization的回调方法的调用
 		Object wrappedBean = bean;
 		if (mbd == null || !mbd.isSynthetic()) {
 			wrappedBean = applyBeanPostProcessorsBeforeInitialization(wrappedBean, beanName);
 		}
-
+		//调用Bean的初始化方法，这个初始化方法是在BeanDefinition中通过定义init-method属性指定的，同时如果Bean实现了
+		//InitializingBean接口，那么这个Bean的afterPropertiesSet实现也会被调用
 		try {
 			invokeInitMethods(beanName, wrappedBean, mbd);
 		}
@@ -1633,7 +1635,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					(mbd != null ? mbd.getResourceDescription() : null),
 					beanName, "Invocation of init method failed", ex);
 		}
-
+		//这里是对后置处理器BeanPostProcessors的postProcessAfterInitialization的回调方法的调用
 		if (mbd == null || !mbd.isSynthetic()) {
 			wrappedBean = applyBeanPostProcessorsAfterInitialization(wrappedBean, beanName);
 		}

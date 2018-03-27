@@ -132,16 +132,19 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 
 	@Override
 	public void afterPropertiesSet() {
+		// 必须配置target属性
 		if (this.target == null) {
 			throw new IllegalArgumentException("Property 'target' is required");
 		}
+		// 同时需要target是一个bean reference
 		if (this.target instanceof String) {
 			throw new IllegalArgumentException("'target' needs to be a bean reference, not a bean name as value");
 		}
 		if (this.proxyClassLoader == null) {
 			this.proxyClassLoader = ClassUtils.getDefaultClassLoader();
 		}
-
+		// TransactionProxyFactoryBean使用ProxyFactory完成AOP的基本功能
+		// 这个ProxyFactory提供Proxy对象，并将TransactionInterceptor设置为target方法调用的拦截器
 		ProxyFactory proxyFactory = new ProxyFactory();
 
 		if (this.preInterceptors != null) {
@@ -150,6 +153,10 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 			}
 		}
 
+		// 这里是Spring加入通知器的地方，可以加入两种通知器，分别是DefaultPointcutAdvisor和TransactionAttributeSourceAdvisor
+		// 这里调用TransactionProxyFactoryBean的createMainInterceptor方法来生成需要的Advisors
+		// 在ProxyFactory的基类AdvisedSupport中，维护了一个用来持有advice的LinkedList，通过对这个LinkedList
+		// 的元素执行增加、修改、删除等操作，用来管理配置给ProxyFactory的通知器
 		// Add the main interceptor (typically an Advisor).
 		proxyFactory.addAdvisor(this.advisorAdapterRegistry.wrap(createMainInterceptor()));
 
@@ -161,6 +168,7 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 
 		proxyFactory.copyFrom(this);
 
+		// 这里创建AOP的目标源，与其在其他地方使用ProxyFactory没有什么差别
 		TargetSource targetSource = createTargetSource(this.target);
 		proxyFactory.setTargetSource(targetSource);
 
@@ -168,13 +176,14 @@ public abstract class AbstractSingletonProxyFactoryBean extends ProxyConfig
 			proxyFactory.setInterfaces(this.proxyInterfaces);
 		}
 		else if (!isProxyTargetClass()) {
+			// 需要根据AOP基础设施来确定使用哪个接口作为代理
 			// Rely on AOP infrastructure to tell us what interfaces to proxy.
 			proxyFactory.setInterfaces(
 					ClassUtils.getAllInterfacesForClass(targetSource.getTargetClass(), this.proxyClassLoader));
 		}
 
 		postProcessProxyFactory(proxyFactory);
-
+		// 这里设置代理对象
 		this.proxy = proxyFactory.getProxy(this.proxyClassLoader);
 	}
 
