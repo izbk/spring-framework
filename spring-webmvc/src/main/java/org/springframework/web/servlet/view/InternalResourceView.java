@@ -135,15 +135,19 @@ public class InternalResourceView extends AbstractUrlBasedView {
 	protected void renderMergedOutputModel(
 			Map<String, Object> model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
+		// 将模型对象作为请求属性公开。
 		// Expose the model object as request attributes.
 		exposeModelAsRequestAttributes(model, request);
 
+		// 将helper作为请求属性公开，如果有的话
 		// Expose helpers as request attributes, if any.
 		exposeHelpers(request);
 
+		// 确定请求调度程序的路径。
 		// Determine the path for the request dispatcher.
 		String dispatcherPath = prepareForRendering(request, response);
 
+		// 为目标资源获取一个RequestDispatcher(通常是一个JSP)。
 		// Obtain a RequestDispatcher for the target resource (typically a JSP).
 		RequestDispatcher rd = getRequestDispatcher(request, dispatcherPath);
 		if (rd == null) {
