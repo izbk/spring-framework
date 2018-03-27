@@ -327,6 +327,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 		Assert.notNull(handler, "Handler object must not be null");
 		Object resolvedHandler = handler;
 
+		// 如果直接用bean的名称进行映射，那就直接从容器中获取handler
 		// Eagerly resolve handler if referencing singleton via name.
 		if (!this.lazyInitHandlers && handler instanceof String) {
 			String handlerName = (String) handler;
@@ -344,18 +345,21 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 			}
 		}
 		else {
+			// 处理URL是"/"的映射，把这个"/"映射的controller设置到rootHandler中
 			if (urlPath.equals("/")) {
 				if (logger.isInfoEnabled()) {
 					logger.info("Root mapping to " + getHandlerDescription(handler));
 				}
 				setRootHandler(resolvedHandler);
 			}
+			// 处理URL是"/*"的映射，把这个"/*"映射的controller设置到defaultHandler中
 			else if (urlPath.equals("/*")) {
 				if (logger.isInfoEnabled()) {
 					logger.info("Default mapping to " + getHandlerDescription(handler));
 				}
 				setDefaultHandler(resolvedHandler);
 			}
+			// 处理正常的URL映射，设置到handlerMap的key和value，分别对应于URL和映射的controller
 			else {
 				this.handlerMap.put(urlPath, resolvedHandler);
 				if (logger.isInfoEnabled()) {

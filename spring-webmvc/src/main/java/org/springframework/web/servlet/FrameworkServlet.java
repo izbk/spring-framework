@@ -624,10 +624,12 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 					"': custom WebApplicationContext class [" + contextClass.getName() +
 					"] is not of type ConfigurableWebApplicationContext");
 		}
+		//实例化需要的具体上下文对象，并为这个上下文设置属性
 		ConfigurableWebApplicationContext wac =
 				(ConfigurableWebApplicationContext) BeanUtils.instantiateClass(contextClass);
 
 		wac.setEnvironment(getEnvironment());
+		//配置双亲上下文，就是在ContextLoader中建立的根上下文
 		wac.setParent(parent);
 		wac.setConfigLocation(getContextConfigLocation());
 
@@ -649,7 +651,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 						ObjectUtils.getDisplayString(getServletContext().getContextPath()) + '/' + getServletName());
 			}
 		}
-
+		//设置ServletContext的引用和其他相关的配置信息
 		wac.setServletContext(getServletContext());
 		wac.setServletConfig(getServletConfig());
 		wac.setNamespace(getNamespace());
