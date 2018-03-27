@@ -87,6 +87,7 @@ public class TransactionInterceptor extends TransactionAspectSupport implements 
 
 	@Override
 	public Object invoke(final MethodInvocation invocation) throws Throwable {
+		// 得到代理的目标对象，并将事物属性传递给目标对象
 		// Work out the target class: may be {@code null}.
 		// The TransactionAttributeSource should be passed the target class
 		// as well as the method, which may be from an interface.

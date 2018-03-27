@@ -114,7 +114,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @SuppressWarnings("serial")
 public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBean
 		implements BeanFactoryAware {
-
+	// TransactionInterceptor通过spring AOP发挥作用，通过这个拦截器的实现，spring封装了事务处理的实现
 	private final TransactionInterceptor transactionInterceptor = new TransactionInterceptor();
 
 	private Pointcut pointcut;
@@ -192,10 +192,13 @@ public class TransactionProxyFactoryBean extends AbstractSingletonProxyFactoryBe
 	protected Object createMainInterceptor() {
 		this.transactionInterceptor.afterPropertiesSet();
 		if (this.pointcut != null) {
+			//使用默认的通知器DefaultPointcutAdvisor，并为通知器配置事务处理拦截器
 			return new DefaultPointcutAdvisor(this.pointcut, this.transactionInterceptor);
 		}
 		else {
 			// Rely on default pointcut.
+			// 如果没有配置pointcut，使用TransactionAttributeSourceAdvisor作为通知器，并为
+			// 通知器设置TransactionInterceptor作为拦截器
 			return new TransactionAttributeSourceAdvisor(this.transactionInterceptor);
 		}
 	}
